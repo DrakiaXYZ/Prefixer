@@ -7,5 +7,6 @@ commands:
   prefix:
     description: Give player a prefix
     usage: |
-           Incorrect usage of command /<command>. Example:
+           Incorrect usage of command /<command>. Examples:
            /<command> <player_name> <prefix> [color]
+           /<command> list - lists all possible colors

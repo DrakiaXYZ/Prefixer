@@ -6,10 +6,10 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
 
 public class PrefixPlayerListener extends PlayerListener {
-	public static Prefixer plugin;
+	public Prefixer plugin;
 	
-	public PrefixPlayerListener(Prefixer instance) {
-		plugin = instance;
+	public PrefixPlayerListener(Prefixer plugin) {
+		this.plugin = plugin;
 	}
 	
 	public void onPlayerChat(PlayerChatEvent event) {
@@ -20,7 +20,7 @@ public class PrefixPlayerListener extends PlayerListener {
 			String[] split = pre.split("_");
 			if (split.length > 1) {
 				String color = split[1];
-				for (int i = 0; i < 15; i++) {
+				for (int i = 0; i <= 15; i++) {
 					String col = ChatColor.getByCode(i).name();
 					if (color.compareToIgnoreCase(col.toLowerCase().replace("_", "")) < 2) {
 						event.setFormat("["+ChatColor.valueOf(col)+split[0]+ChatColor.WHITE+"] <%s> %s");
