@@ -47,11 +47,16 @@ public class Prefixer extends JavaPlugin {
 		String cmdName = cmd.getName();
 		if (sender instanceof Player) {
 			if (((Player)sender).isOp()) {
-				if (args.length == 2) {
-					if (cmdName.equalsIgnoreCase("prefix")) {
-						String name = args[0];
+				String name = args[0].toLowerCase();
+				if (cmdName.equalsIgnoreCase("prefix")) {
+					if (args.length == 2) {
 						String pre = args[1];
 						prefix.setString(name, pre);
+						return true;
+					} else if(args.length == 3) {
+						String pre = args[1];
+						String color = args[2];
+						prefix.setString(name, pre+"_"+color);
 						return true;
 					}
 				}
