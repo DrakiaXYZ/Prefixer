@@ -23,7 +23,7 @@ public class PrefixPlayerListener extends PlayerListener {
 				for (int i = 0; i <= 15; i++) {
 					String col = ChatColor.getByCode(i).name();
 					if (color.equalsIgnoreCase(col.toLowerCase().replace("_", ""))) {
-						event.setFormat("["+ChatColor.valueOf(col)+split[0]+ChatColor.WHITE+"] <%s> %s");
+						event.setFormat("["+ChatColor.valueOf(col)+split[0]+ChatColor.WHITE+"] "+event.getFormat());
 						break;
 					}
 				}
