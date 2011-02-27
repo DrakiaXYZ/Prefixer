@@ -67,6 +67,11 @@ public final class Property {
 		return this.properties.containsKey(key);
 	}
 	
+	public void remove(String key) {
+		this.properties.remove(key);
+		save();
+	}
+	
 	// STRING
 	public String getString(String key) {
 		if (this.properties.containsKey(key)) {

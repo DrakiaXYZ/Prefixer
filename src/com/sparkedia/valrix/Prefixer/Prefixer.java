@@ -43,25 +43,30 @@ public class Prefixer extends JavaPlugin {
 				String name = args[0].toLowerCase();
 				if (cmdName.equalsIgnoreCase("prefix")) {
 					if (args.length == 1) {
-						((Player)sender).sendMessage("Color List:");
-						String color;
-						String msg1 = "";
-						String msg2 = "";
-						for (int i = 0; i <= 15; i++) {
-							color = ChatColor.getByCode(i).name();
-							if (i == 0) {
-								msg1 = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
-							} else if (i > 0 && i < 7) {
-								msg1 += " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
-							} else if (i == 7) {
-								msg2 = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
-							} else {
-								msg2 += " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
+						if (args[0].equalsIgnoreCase("list")) {
+							((Player)sender).sendMessage("Color List:");
+							String color;
+							String msg1 = "";
+							String msg2 = "";
+							for (int i = 0; i <= 15; i++) {
+								color = ChatColor.getByCode(i).name();
+								if (i == 0) {
+									msg1 = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
+								} else if (i > 0 && i < 7) {
+									msg1 += " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
+								} else if (i == 7) {
+									msg2 = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
+								} else {
+									msg2 += " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "");
+								}
 							}
+							((Player)sender).sendMessage(msg1);
+							((Player)sender).sendMessage(msg2);
+							return true;
+						} else if (Prefixer.prefix.keyExists(name)) {
+							Prefixer.prefix.remove(name);
+							return true;
 						}
-						((Player)sender).sendMessage(msg1);
-						((Player)sender).sendMessage(msg2);
-						return true;
 					} else if (args.length == 2) {
 						String pre = args[1];
 						prefix.setString(name, pre);
