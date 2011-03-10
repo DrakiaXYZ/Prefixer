@@ -1,8 +1,8 @@
 package com.sparkedia.valrix.Prefixer;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerListener;
 
 public class PrefixPlayerListener extends PlayerListener {
@@ -12,10 +12,16 @@ public class PrefixPlayerListener extends PlayerListener {
 		this.plugin = plugin;
 	}
 	
+	public void onPlayerJoin(PlayerEvent event) {
+		String name = event.getPlayer().getName().toLowerCase();
+		if (!Prefixer.prefix.keyExists(name)) {
+			Prefixer.prefix.setString(name, "");
+		}
+	}
+	
 	public void onPlayerChat(PlayerChatEvent event) {
-		Player player = event.getPlayer();
-		String name = player.getName().toLowerCase();
-		if (Prefixer.prefix.keyExists(name)) {
+		String name = event.getPlayer().getName().toLowerCase();
+		if (Prefixer.prefix.keyExists(name) && Prefixer.prefix.hasValue(name)) {
 			String pre = Prefixer.prefix.getString(name);
 			String[] split = pre.split("_");
 			if (split.length > 1) {

@@ -1,12 +1,13 @@
 name: Prefixer
 main: com.sparkedia.valrix.Prefixer.Prefixer
-version: 1.2
+version: 1.5
 author: Valrix
 description: Sets custom prefix to individual players
 commands:
   prefix:
     description: Give player a prefix
     usage: |
-           Incorrect usage of command /<command>. Examples:
-           /<command> <player_name> <prefix> [color]
-           /<command> list - lists all possible colors
+      <> = Required [] = Optional
+      /<command> list
+      /<command> <prefix> [color]
+      /<command> <name> [prefix] [color]
