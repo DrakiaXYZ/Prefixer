@@ -113,6 +113,7 @@ public class Prefixer extends JavaPlugin {
 							} else if(args.length == 3) {
 								// /prefix <name> <prefix> <color>
 								String name = args[0].toLowerCase();
+								// Only an OP can change another player's name
 								if ((prefix.keyExists(name) && ((Player)sender).isOp()) || (prefix.keyExists(name) && name.equalsIgnoreCase(((Player)sender).getName().toLowerCase()))) {
 									String pre = args[1];
 									String col = args[2].toLowerCase();
