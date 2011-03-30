@@ -14,25 +14,22 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Prefixer extends JavaPlugin {
-	private final PrefixPlayerListener pListener = new PrefixPlayerListener(this);
-	protected static final Logger log = Logger.getLogger("Minecraft");
-	public static Property prefix = null;
+	protected PrefixPlayerListener pListener;
+	public Logger log;
+	public Property prefix = null;
 	public String pName = null;
 	private Property config = null;
 	
 	public void onDisable() {
 		PluginDescriptionFile pdf = this.getDescription();
-		log.info("["+pName+"] v"+pdf.getVersion()+" has been disabled.");
+		log.info('['+pName+"] v"+pdf.getVersion()+" has been disabled.");
 	}
 
 	public void onEnable() {
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_CHAT, this.pListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_JOIN, this.pListener, Event.Priority.Normal, this);
+		log = this.getServer().getLogger();
 		
 		PluginDescriptionFile pdf = this.getDescription();
 		pName = pdf.getName();
-		log.info("["+pName+"] v"+pdf.getVersion()+" has been enabled.");
 		
 		if (!(this.getDataFolder().isDirectory())) {
 			this.getDataFolder().mkdir();
@@ -49,6 +46,14 @@ public class Prefixer extends JavaPlugin {
 				config = new Property(this.getDataFolder()+"/config.txt", this);
 			}
 		}
+		
+		pListener = new PrefixPlayerListener(this);
+		
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_JOIN, pListener, Event.Priority.Normal, this);
+		
+		log.info('['+pName+"] v"+pdf.getVersion()+" has been enabled.");
 		
 		getCommand("prefix").setExecutor(new CommandExecutor() {
 			public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
@@ -78,13 +83,13 @@ public class Prefixer extends JavaPlugin {
 									((Player)sender).sendMessage(msg1);
 									((Player)sender).sendMessage(msg2);
 									return true;
-								} else if ((Prefixer.prefix.keyExists(args[0].toLowerCase()) && ((Player)sender).isOp()) || (Prefixer.prefix.keyExists(args[0].toLowerCase()) && (args[0].equalsIgnoreCase(((Player)sender).getName())))) {
+								} else if ((prefix.keyExists(args[0].toLowerCase()) && ((Player)sender).isOp()) || (prefix.keyExists(args[0].toLowerCase()) && (args[0].equalsIgnoreCase(((Player)sender).getName())))) {
 									// Only OP can remove prefixes, unless name provided matches sender's name
-									Prefixer.prefix.remove(args[0].toLowerCase());
+									prefix.remove(args[0].toLowerCase());
 									return true;
 								} else {
 									//just a prefix for the user calling the command
-									Prefixer.prefix.setString(((Player)sender).getName().toLowerCase(), args[0].toLowerCase());
+									prefix.setString(((Player)sender).getName().toLowerCase(), args[0].toLowerCase());
 									return true;
 								}
 							} else if (args.length == 2) {

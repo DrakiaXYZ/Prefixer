@@ -13,13 +13,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Property {
-	private static final Logger log = Logger.getLogger("Minecraft");
+	private Logger log;
 	protected Prefixer plugin;
 	private Properties properties;
 	private String fileName;
 
 	public Property(String fileName, Prefixer plugin) {
 		this.plugin = plugin;
+		this.log = plugin.log;
 		this.fileName = fileName;
 		this.properties = new Properties();
 		File file = new File(fileName);
