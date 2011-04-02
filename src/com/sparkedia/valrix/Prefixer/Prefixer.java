@@ -51,7 +51,6 @@ public class Prefixer extends JavaPlugin {
 		
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_JOIN, pListener, Event.Priority.Normal, this);
 		
 		log.info('['+pName+"] v"+pdf.getVersion()+" has been enabled.");
 		
