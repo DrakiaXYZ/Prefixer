@@ -1,6 +1,6 @@
 name: Prefixer
 main: com.sparkedia.valrix.Prefixer.Prefixer
-version: 1.7
+version: 1.8
 author: Valrix
 description: Sets custom prefix to individual players
 commands:
@@ -9,5 +9,5 @@ commands:
     usage: |
       <> = Required [] = Optional
       /<command> list
-      /<command> <prefix> [color]
-      /<command> <name> [prefix] [color]
+      /<command> <prefix>
+      /<command> <name> [prefix]
