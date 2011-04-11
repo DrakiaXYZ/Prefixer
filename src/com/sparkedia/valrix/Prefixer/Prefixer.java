@@ -1,6 +1,7 @@
 package com.sparkedia.valrix.Prefixer;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -9,9 +10,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import org.bukkit.craftbukkit.TextWrapper;
@@ -23,7 +21,9 @@ public class Prefixer extends JavaPlugin {
 	protected PrefixPlayerListener pListener;
 	public Logger log;
 	public Property prefix;
-	public String pName = null;
+	public File df;
+	public String pName;
+	public String version;
 	private Property config = null;
 	public PermissionHandler permission = null;
 	
@@ -48,46 +48,113 @@ public class Prefixer extends JavaPlugin {
 		return str;
 	}
 	
+	// Function to reformat old prefixes to the new format
+	private String reformat(String str) {
+		// Switch statement is fast, but doesn't allow strings. Check the hashcode instead
+		switch (str.substring(str.indexOf('_')+1).hashCode()) {
+		case 93818879: // Black
+			str = "\u00A70"+str.replace("_black", "");
+			break;
+		case 1741452496: // Dark Blue
+			str = "\u00A71"+str.replace("_darkblue", "");
+			break;
+		case -1844766387: // Dark Green
+			str = "\u00A72"+str.replace("_darkgreen", "");
+			break;
+		case 1741427506: // Dark Aqua
+			str = "\u00A73"+str.replace("_darkaqua", "");
+			break;
+		case 1441664347: // Dark Red
+			str = "\u00A74"+str.replace("_darkred", "");
+			break;
+		case -1092352334: // Dark Purple
+			str = "\u00A75"+str.replace("_darkpurple", "");
+			break;
+		case 3178592: // Gold
+			str = "\u00A76"+str.replace("_gold", "");
+			break;
+		case 3181155: // Gray
+			str = "\u00A77"+str.replace("_gray", "");
+			break;
+		case 1741606617: // Dark Gray
+			str = "\u00A78"+str.replace("_darkgray", "");
+			break;
+		case 3027034: // Blue
+			str = "\u00A79"+str.replace("_blue", "");
+			break;
+		case 98619139: // Green
+			str = "\u00A7A"+str.replace("_green", "");
+			break;
+		case 3002044: // Aqua
+			str = "\u00A7B"+str.replace("_aqua", "");
+			break;
+		case 112785: // Red
+			str = "\u00A7C"+str.replace("_red", "");
+			break;
+		case -1682598830: // Light Purple
+			str = "\u00A7D"+str.replace("_lightpurple", "");
+			break;
+		case -734239628: // Yellow
+			str = "\u00A7E"+str.replace("_yellow", "");
+			break;
+		case 113101865: // White
+			str = "\u00A7F"+str.replace("_white", "");
+			break;
+		default:
+			break;
+		}
+		return str;
+	}
+	
 	public void onDisable() {
-		PluginDescriptionFile pdf = this.getDescription();
-		log.info('['+pName+"] v"+pdf.getVersion()+" has been disabled.");
+		log.info('['+pName+"] v"+version+" has been disabled.");
 	}
 
 	public void onEnable() {
-		log = this.getServer().getLogger();
+		log = getServer().getLogger();
 		
-		PluginDescriptionFile pdf = this.getDescription();
-		pName = pdf.getName();
+		pName = getDescription().getName();
+		version = getDescription().getVersion();
+		df = getDataFolder();
 
-		if (!(this.getDataFolder().isDirectory())) {
-			this.getDataFolder().mkdir();
+		if (!(df.isDirectory())) {
+			df.mkdir();
 		}
-		prefix = new Property(this.getDataFolder()+"/players.prefix", this);
+		
+		prefix = new Property(df+"/players.prefix", "prefix", this);
+		// Check if they have the updated prefix property file, otherwise update it to new format
+		if (!version.equalsIgnoreCase(prefix.getString(pName+"Version"))) {
+			LinkedHashMap<String, Object> tmp = new LinkedHashMap<String, Object>();
+			prefix.remove(pName+"Version");
+			prefix.remove(pName+"Type");
+			for (String key : prefix.getKeys()) {
+				// Reformat each player
+				tmp.put(key, reformat(prefix.getString(key)));
+			}
+			prefix.rebuild(tmp);
+		}
+		
 		//Does the config exist, if not then make a new blank one
-		if (!(new File(this.getDataFolder()+"/config.txt").exists())) {
-			config = new Property(this.getDataFolder()+"/config.txt", this);
+		if (!(new File(df+"/config.txt").exists())) {
+			config = new Property(df+"/config.txt", "config", this);
 			config.setBoolean("OP", true); //OP only by default
 			config.save();
 		} else {
-			config = new Property(this.getDataFolder()+"/config.txt", this);
+			config = new Property(df+"/config.txt", "config", this);
 		}
 
 		// Set up Permissions support
-		Plugin test = this.getServer().getPluginManager().getPlugin("Permissions");
-		if (permission == null) {
-			if (test != null) {
-				this.permission = ((Permissions)test).getHandler();
-			} else {
-				log.info('['+pName+"]: Permission system not detected.");
-			}
+		if (getServer().getPluginManager().getPlugin("Permissions") != null) {
+			this.permission = ((Permissions)getServer().getPluginManager().getPlugin("Permissions")).getHandler();
+		} else {
+			log.info('['+pName+"]: Permission system not detected. Defaulting to OP permissions.");
 		}
-		
+
 		pListener = new PrefixPlayerListener(this);
 		
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
 		
-		log.info('['+pName+"] v"+pdf.getVersion()+" has been enabled.");
+		log.info('['+pName+"] v"+version+" has been enabled.");
 		
 		getCommand("prefix").setExecutor(new CommandExecutor() {
 			public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {

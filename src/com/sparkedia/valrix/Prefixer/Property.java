@@ -22,10 +22,14 @@ public final class Property {
 	private LinkedHashMap<String, Object> properties = new LinkedHashMap<String, Object>();
 	private String filename;
 	private String pName;
+	private String version;
+	private String type;
 
-	public Property(String filename, Prefixer plugin) {
+	public Property(String filename, String type, Prefixer plugin) {
 		this.plugin = plugin;
 		this.pName = plugin.pName;
+		this.version = plugin.version;
+		this.type = type.toLowerCase().replace(type.charAt(0), type.toUpperCase().charAt(0));
 		this.log = plugin.log;
 		this.filename = filename;
 		File file = new File(filename);
@@ -50,7 +54,14 @@ public final class Property {
 			while ((line = br.readLine()) != null) {
 				// Line has content
 				if (line.trim().length() == 0) {
+					lc++;
 					continue;
+				}
+				// Store the version of the old config. Simplified version checking method
+				if (lc == 0) {
+					String v = (line.indexOf('-') > 0) ? line.substring(line.indexOf('-')+1).trim() : "na";
+					properties.put(pName+"Version", v);
+					properties.put(pName+"Type", type);
 				}
 				// If not the first line and is a comment, store it for later
 				if (line.charAt(0) == '#' && lc > 0) {
@@ -100,7 +111,7 @@ public final class Property {
 		try {
 			// Construct the BufferedWriter object
 			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),"UTF-8"));
-			bw.write("# "+pName+" Properties File");
+			bw.write("# "+pName+" "+type+" File -"+version);
 			bw.newLine();
 			
 			// Save all the properties one at a time, only if there's data to write
@@ -189,6 +200,11 @@ public final class Property {
 			return true;
 		}
 		return false;
+	}
+	
+	// Return a set of all keys currently in the properties map
+	public Set<String> getKeys() {
+		return properties.keySet();
 	}
 	
 	// get and set property value as a string
