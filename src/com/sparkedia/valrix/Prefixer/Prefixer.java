@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -158,102 +159,138 @@ public class Prefixer extends JavaPlugin {
 		
 		getCommand("prefix").setExecutor(new CommandExecutor() {
 			public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
-				String cmdName = cmd.getName();
 				if (sender instanceof Player) {
 					Player player = ((Player)sender);
 					// Sender has permissions for /prefix or (sender is an OP or OP=false)
 					if (permission != null) {
-						if (permission != null) {
-							if (args.length == 1) {
-								if (args[0].equalsIgnoreCase("list") && permission.has(player, "prefixer.list")) {
-									// Display a list of colors for the user
-									player.sendMessage("Color List:");
-									String color;
-									String msg = "";
-									String cols = "ABCDEF";
-									for (int i = 0; i <= 15; i++) {
-										color = ChatColor.getByCode(i).name();
-										if (msg.length() == 0) {
-											msg = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i;
-											continue;
-										}
-										msg += (i < 10) ? " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i : " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+cols.charAt(i-10);
-										TextWrapper.wrapText(msg);
+						if (args.length == 1) {
+							if (args[0].equalsIgnoreCase("list") && permission.has(player, "prefixer.list")) {
+								// Display a list of colors for the user
+								player.sendMessage("Color List:");
+								String color;
+								String msg = "";
+								String cols = "ABCDEF";
+								for (int i = 0; i <= 15; i++) {
+									color = ChatColor.getByCode(i).name();
+									if (msg.length() == 0) {
+										msg = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i;
+										continue;
 									}
-									player.sendMessage(msg);
-									return true;
-								} else if ((hasPrefix(args[0]) && (permission.has(player, "prefixer.remove"))) || args[0].equalsIgnoreCase(player.getName().toLowerCase())) {
-									// Only people with permission to remove another's prefix or the prefix owner can remove
-									removePrefix(args[0]);
-									return true;
-								} else {
-									if (permission.has(player, "prefixer.self")) {
-										// Set a prefix for the user calling the command if they have permission
-										setPrefix(player.getName(), args[0]);
-										return true;
-									}
-									player.sendMessage("You don't have permission to set your prefix.");
+									msg += (i < 10) ? " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i : " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+cols.charAt(i-10);
+									TextWrapper.wrapText(msg);
+								}
+								player.sendMessage(msg);
+								return true;
+							} else if ((hasPrefix(args[0]) && (permission.has(player, "prefixer.remove"))) || args[0].equalsIgnoreCase(player.getName().toLowerCase())) {
+								// Only people with permission to remove another's prefix or the prefix owner can remove
+								removePrefix(args[0]);
+								return true;
+							} else {
+								if (permission.has(player, "prefixer.self")) {
+									// Set a prefix for the user calling the command if they have permission
+									setPrefix(player.getName(), args[0]);
 									return true;
 								}
-							} else if (args.length == 2) {
-								// /prefix <name> <prefix>
-								if ((hasPrefix(args[0]) && (permission.has(player, "prefixer.other"))) || (args[0].equalsIgnoreCase(player.getName().toLowerCase()) && permission.has(player, "prefixer.self"))) {
-									// Name exists. They have permission to set another's prefix or can set own.
-									setPrefix(args[0], args[1]);
-									return true;
-								}
+								player.sendMessage("You don't have permission to set your prefix.");
 								return true;
 							}
+						} else if (args.length == 2) {
+							// /prefix <name> <prefix>
+							if (permission.has(player, "prefixer.other") || (args[0].equalsIgnoreCase(player.getName().toLowerCase()) && permission.has(player, "prefixer.self"))) {
+								// Permission to set another's prefix *or* setting own name and has permission to
+								setPrefix(args[0], args[1]);
+								return true;
+							}
+							// Don't have permission to set another's prefix *or* have permission to set own *and* name isn't their's
+							if (!permission.has(player, "prefixer.other") || permission.has(player, "prefixer.self") && !args[0].equalsIgnoreCase(player.getName().toLowerCase())) {
+								player.sendMessage("You don't have permission to set someone else's prefix.");
+								return true;
+							}
+							// Don't have permission to set another's prefix *and* no permission to set own prefix
+							if (!permission.has(player, "prefix.other") && !permission.has(player, "prefixer.self") && args[0].equalsIgnoreCase(player.getName().toLowerCase())) {
+								player.sendMessage("You don't have permission to set your prefix.");
+								return true;
+							}
+							return true;
 						}
 					} else if (player.isOp() || !config.getBoolean("OP")) {
 						// Permissions isn't enabled
-						if (cmdName.equalsIgnoreCase("prefix")) {
-							if (args.length == 1) {
-								if (args[0].equalsIgnoreCase("list")) {
-									// Display a list of colors for the user
-									player.sendMessage("Color List:");
-									String color;
-									String msg = "";
-									String cols = "ABCDEF";
-									for (int i = 0; i <= 15; i++) {
-										color = ChatColor.getByCode(i).name();
-										if (msg.length() == 0) {
-											msg = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i;
-											continue;
-										}
-										msg += (i < 10) ? " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i : " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+cols.charAt(i-10);
-										TextWrapper.wrapText(msg);
+						if (args.length == 1) {
+							if (args[0].equalsIgnoreCase("list")) {
+								// Display a list of colors for the user
+								player.sendMessage("Color List:");
+								String color;
+								String msg = "";
+								String cols = "ABCDEF";
+								for (int i = 0; i <= 15; i++) {
+									color = ChatColor.getByCode(i).name();
+									if (msg.length() == 0) {
+										msg = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i;
+										continue;
 									}
-									player.sendMessage(msg);
-									return true;
-								} else if (hasPrefix(args[0]) && (player.isOp() || !config.getBoolean("OP"))) {
-									// Only people with permission to remove another's prefix or the prefix owner can remove
-									if (args[0].equalsIgnoreCase(player.getName().toLowerCase())) {
-										removePrefix(args[0]);
-									}
-									return true;
-								} else if (!hasPrefix(args[0])) {
-									// Don't let them set the prefix equal to their own name
-									if (args[0].equalsIgnoreCase(player.getName().toLowerCase())) return true;
-									// If not trying to remove a prefix they don't already have...
-									if (player.isOp() || !config.getBoolean("OP")) {
-										// Set a prefix for the user calling the command if they have permission
-										setPrefix(player.getName(), args[0]);
-										return true;
-									}
-									player.sendMessage("You don't have permission to set your prefix.");
-									return true;
+									msg += (i < 10) ? " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i : " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+cols.charAt(i-10);
+									TextWrapper.wrapText(msg);
 								}
-							} else if (args.length == 2) {
-								// /prefix <name> <prefix>
-								if (hasPrefix(args[0]) && (player.isOp() || (!config.getBoolean("OP") && args[0].equalsIgnoreCase(player.getName().toLowerCase())))) {
-									// Name exists. Are OP or is allowed to set own prefix
-									setPrefix(args[0], args[1]);
-									return true;
+								player.sendMessage(msg);
+								return true;
+							} else if (hasPrefix(args[0]) && (player.isOp() || !config.getBoolean("OP"))) {
+								// Only people with permission to remove another's prefix or the prefix owner can remove
+								if (args[0].equalsIgnoreCase(player.getName().toLowerCase())) {
+									removePrefix(args[0]);
 								}
 								return true;
+							} else if (!hasPrefix(args[0])) {
+								// Don't let them set the prefix equal to their own name
+								if (args[0].equalsIgnoreCase(player.getName().toLowerCase())) return true;
+								// If not trying to remove a prefix they don't already have...
+								if (player.isOp() || !config.getBoolean("OP")) {
+									// Set a prefix for the user calling the command if they have permission
+									setPrefix(player.getName(), args[0]);
+									return true;
+								}
+								player.sendMessage("You don't have permission to set your prefix.");
+								return true;
 							}
+						} else if (args.length == 2) {
+							// /prefix <name> <prefix>
+							if (player.isOp() || (!config.getBoolean("OP") && args[0].equalsIgnoreCase(player.getName().toLowerCase()))) {
+								// sender is OP *or* not OP and setting own name
+								setPrefix(args[0], args[1]);
+								return true;
+							}
+							return true;
 						}
+					}
+				} else if (sender instanceof ConsoleCommandSender) {
+					if (args.length == 1) {
+						if (args[0].equalsIgnoreCase("list")) {
+							// Display a list of colors for the user
+							sender.sendMessage("Color List:");
+							String color;
+							String msg = "";
+							String cols = "ABCDEF";
+							for (int i = 0; i <= 15; i++) {
+								color = ChatColor.getByCode(i).name();
+								if (msg.length() == 0) {
+									msg = ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i;
+									continue;
+								}
+								msg += (i < 10) ? " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+i : " "+ChatColor.valueOf(color)+color.toLowerCase().replace("_", "")+"-&"+cols.charAt(i-10);
+								TextWrapper.wrapText(msg);
+							}
+							sender.sendMessage(msg);
+							return true;
+						} else if (hasPrefix(args[0])) {
+							// Console is removing a player's prefix
+							removePrefix(args[0]);
+							sender.sendMessage('['+pName+"]: Removed "+args[0]+"\'s prefix.");
+							return true;
+						}
+					} else if (args.length == 2) {
+						// Console is setting a player's prefix
+						setPrefix(args[0], args[1]);
+						sender.sendMessage('['+pName+"]: Gave "+args[0]+" the prefix "+format(args[1]));
+						return true;
 					}
 				}
 				return false;
@@ -282,7 +319,8 @@ public class Prefixer extends JavaPlugin {
 	public boolean removePrefix(String name) {
 		name = name.toLowerCase();
 		if (prefix.keyExists(name)) {
-			prefix.remove(name);
+			prefix.setString(name, "");
+			prefix.save();
 			return true;
 		}
 		return false;
