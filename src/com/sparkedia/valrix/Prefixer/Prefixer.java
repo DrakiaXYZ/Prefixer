@@ -107,10 +107,12 @@ public class Prefixer extends JavaPlugin {
 		return str;
 	}
 	
+	@Override
 	public void onDisable() {
 		log.info('['+pName+"] v"+version+" has been disabled.");
 	}
 
+	@Override
 	public void onEnable() {
 		log = getServer().getLogger();
 		

@@ -12,6 +12,7 @@ public class PrefixPlayerListener extends PlayerListener {
 		this.prefix = plugin.prefix;
 	}
 
+	@Override
 	public void onPlayerChat(PlayerChatEvent e) {
 		String name = e.getPlayer().getName().toLowerCase();
 		if (prefix.keyExists(name)) {
