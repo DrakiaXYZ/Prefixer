@@ -109,7 +109,7 @@ public class Prefixer extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		log.info('['+pName+"] v"+version+" has been disabled.");
+		log.info('['+pName+"] has been disabled.");
 	}
 
 	@Override
@@ -235,11 +235,9 @@ public class Prefixer extends JavaPlugin {
 								}
 								player.sendMessage(msg);
 								return true;
-							} else if (hasPrefix(args[0]) && (player.isOp() || !config.getBoolean("OP"))) {
+							} else if (hasPrefix(args[0]) && (player.isOp() || (!config.getBoolean("OP") && args[0].equalsIgnoreCase(player.getName().toLowerCase())))) {
 								// Only people with permission to remove another's prefix or the prefix owner can remove
-								if (args[0].equalsIgnoreCase(player.getName().toLowerCase())) {
-									removePrefix(args[0]);
-								}
+								removePrefix(args[0]);
 								return true;
 							} else if (!hasPrefix(args[0])) {
 								// Don't let them set the prefix equal to their own name
@@ -330,7 +328,7 @@ public class Prefixer extends JavaPlugin {
 	
 	public boolean hasPrefix(String name) {
 		name = name.toLowerCase();
-		if (prefix.keyExists(name) && !prefix.isEmpty(name)) {
+		if (prefix.getString(name).length() > 0) {
 			return true;
 		}
 		return false;

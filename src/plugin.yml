@@ -1,6 +1,6 @@
 name: Prefixer
 main: com.sparkedia.valrix.Prefixer.Prefixer
-version: 2.1
+version: 2.2
 author: Valrix
 description: Sets custom prefix to individual players
 commands:
