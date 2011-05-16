@@ -120,9 +120,7 @@ public class Prefixer extends JavaPlugin {
 		version = getDescription().getVersion();
 		df = getDataFolder();
 
-		if (!(df.isDirectory())) {
-			df.mkdir();
-		}
+		if (!(df.isDirectory())) df.mkdir();
 		
 		prefix = new Property(df+"/players.prefix", "prefix", this);
 		// Check if they have the updated prefix property file, otherwise update it to new format
@@ -299,17 +297,12 @@ public class Prefixer extends JavaPlugin {
 	}
 	
 	public String getPrefix(String name) {
-		name = name.toLowerCase();
-		if (!prefix.isEmpty(name)) {
-			return prefix.getString(name);
-		}
-		return "";
+		return (!prefix.isEmpty(name.toLowerCase())) ? prefix.getString(name.toLowerCase()) : "";
 	}
 	
 	public boolean setPrefix(String name, String pref) {
-		name = name.toLowerCase();
 		if (pref.trim().length() > 0) {
-			prefix.setString(name, format(pref+"&F"));
+			prefix.setString(name.toLowerCase(), format(pref+"&F"));
 			prefix.save();
 			return true;
 		}
@@ -317,9 +310,8 @@ public class Prefixer extends JavaPlugin {
 	}
 	
 	public boolean removePrefix(String name) {
-		name = name.toLowerCase();
-		if (prefix.keyExists(name)) {
-			prefix.setString(name, "");
+		if (prefix.keyExists(name.toLowerCase())) {
+			prefix.setString(name.toLowerCase(), "");
 			prefix.save();
 			return true;
 		}
@@ -327,10 +319,6 @@ public class Prefixer extends JavaPlugin {
 	}
 	
 	public boolean hasPrefix(String name) {
-		name = name.toLowerCase();
-		if (prefix.getString(name).length() > 0) {
-			return true;
-		}
-		return false;
+		return (prefix.getString(name.toLowerCase()).length()>0) ? true : false;
 	}
 }
